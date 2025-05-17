@@ -27,41 +27,47 @@ const ContactForm = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // In a real implementation, you would send the form data to your server
-      // with NodeMailer integration here
-      console.log('Form submitted:', formData);
-      
-      toast({
-        title: "Message sent!",
-        description: "Thanks for reaching out. We'll be in touch soon.",
-      });
-      
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        company: "",
-        message: "",
-      });
-    } catch (error) {
-      toast({
-        title: "Something went wrong",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+  try {
+    const response = await fetch("https://pixel-craft-backend.onrender.com/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to send message");
     }
-  };
+
+    toast({
+      title: "Message sent!",
+      description: "Thanks for reaching out. We'll be in touch soon.",
+    });
+
+    // Reset form
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      company: "",
+      message: "",
+    });
+  } catch (error) {
+    toast({
+      title: "Something went wrong",
+      description: "Please try again later.",
+      variant: "destructive",
+    });
+    console.error("Error submitting contact form:", error);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
